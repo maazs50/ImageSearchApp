@@ -1,20 +1,24 @@
 package com.codinginflow.imagesearchapp.gallery.data
 
+import android.util.Log
 import androidx.paging.PagingSource
-import com.codinginflow.imagesearchapp.api.UnSplashApi
+import com.codinginflow.imagesearchapp.api.UnsplashApi
 import retrofit2.HttpException
 import java.io.IOException
 
 private const val UNSPLASH_STARTING_PAGE_INDEX = 1
 
 class UnsplashPagingSource(
-    private val unSplashApi: UnSplashApi,
-    private val query: String) : PagingSource<Int,UnsplashPhoto>() {
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, UnsplashPhoto> {
-        return try {
-            val position = params.key ?: UNSPLASH_STARTING_PAGE_INDEX
+    private val unsplashApi: UnsplashApi,
+    private val query: String
+    ) : PagingSource<Int,UnsplashPhoto>() {
 
-            val response = unSplashApi.searchPhotos(query,position,params.loadSize)
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, UnsplashPhoto> {
+        val position = params.key ?: UNSPLASH_STARTING_PAGE_INDEX
+
+        return try {
+
+            val response = unsplashApi.searchPhotos(query,position,params.loadSize)
 
             val photos = response.results
 
@@ -24,8 +28,11 @@ class UnsplashPagingSource(
                 nextKey = if (photos.isEmpty()) null else position+1
             )
         }catch (exception: IOException){
+            Log.i("IOException",exception.toString())
             LoadResult.Error(exception)
+
         }catch (exception: HttpException){
+            Log.i("HttpException",exception.toString())
             LoadResult.Error(exception)
         }
 
