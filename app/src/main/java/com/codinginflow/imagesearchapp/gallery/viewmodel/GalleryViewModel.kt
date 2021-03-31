@@ -1,21 +1,21 @@
 package com.codinginflow.imagesearchapp.gallery.viewmodel
 
+import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import androidx.paging.cachedIn
 import com.codinginflow.imagesearchapp.gallery.data.UnSplashRepository
 
 class GalleryViewModel @ViewModelInject constructor(
-    private val repository: UnSplashRepository)
+    private val repository: UnSplashRepository,
+    @Assisted state: SavedStateHandle)
     : ViewModel() {
         companion object{
             const val DEFAULT_QUERY = "cats"
+            const val CURRENT_QUERY = "current_query"
         }
 
-        private val currentQuery = MutableLiveData(DEFAULT_QUERY)
+        private val currentQuery = state.getLiveData(CURRENT_QUERY, DEFAULT_QUERY)
 
         val photos = currentQuery.switchMap { queryString ->
            repository.getSearchResults(queryString).cachedIn(viewModelScope)
